@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<link href="c0NtR01Ier/lib/bootstrap.min.css" rel="stylesheet">
+		<title>在线提问工具</title>
 		<script src="c0NtR01Ier/lib/jquery.min.js"></script>
 		<script src="c0NtR01Ier/lib/bootstrap.min.js"></script>
 		<script type="text/javascript" src="c0NtR01Ier/lib/sweetalert2.min.js"></script>
@@ -15,9 +16,12 @@
 			}
 		</style>
 		<script>
+			var spd=1;
 			var n = 0;
 			var strings;
 			var c;
+			var audio1;
+			var audio2;
 			const sleep = (timeout) => {
 			  return new Promise((resolve)=>{
 				setTimeout(()=>{
@@ -30,31 +34,47 @@
 			}
 			const main = async() => {
 				$("#bt").attr("disabled","disabled");
+				var max, f=-1;
 				if(JSON.parse(c.responseJSON.data.txt_content)[0].content == "rnd")
 				{
-					for(var i = 0; i < randint(10, 20);i++)
-					{
-						$("#number").fadeOut(200);
-						$("#qwq").append('<span class="badge badge-secondary" id="number" style="display: none;">'+strings[11+n]+'</span>');
-						$("#qwq").children("span:last-child").hide();
-						await sleep(300)
-						$("#number").remove();
-						$("#qwq").children("span:last-child").fadeIn();
-						n++;
-						if(n >= strings.length-11) n = -11;
-					}
-					swal("请 " + $("#qwq").find("span").eq(5).text() + " 回答问题");
+					max = randint(50, 50+strings.length);
 				}
+				else
+				{
+					f = parseInt(JSON.parse(c.responseJSON.data.txt_content)[0].content);
+					max = 50+f;
+				}
+				for(var i = 0; i < max;i++)
+				{
+					audio1.currentTime = 0;
+					audio1.play();
+					$("#number").fadeOut(1024/spd);
+					$("#qwq").append('<span class="badge badge-success" id="number" style="display: none;">'+strings[11+n]+'</span>');
+					$("#qwq").children("span:last-child").hide();
+					await sleep(1024/spd)
+					$("#number").remove();
+					$("#qwq").children("span:last-child").fadeIn();
+					n++;
+					if(spd < 11) spd *= 1.2;
+					if(f != -1 && n+11-5 == f) break;
+					if(n >= strings.length-11) n = -11;
+				}
+				audio2.currentTime = 0;
+				audio2.play();
+				swal("请 " + $("#qwq").find("span").eq(5).text() + " 回答问题");
+				spd=1;
 				$("#bt").removeAttr("disabled");
 			}
 			function init()
 			{
+				audio1 = document.getElementById("yx1");
+				audio2 = document.getElementById("yx2");
 				$.ajaxSettings.async = false;
 				c = $.post("https://a6.qikekeji.com/txt/data/detail/",{"password":"passw0rd", "txt_name":"dmgen"});
 				strings = JSON.parse(c.responseJSON.data.txt_content)[1].content.split("\n");
 				for(var i = 0; i < 11; i++)
 				{
-					$("#qwq").append('<span class="badge badge-secondary" id="number">'+strings[i]+'</span>');
+					$("#qwq").append('<span class="badge badge-success" id="number">'+strings[i]+'</span>');
 				}
 			}
 		</script>
@@ -62,9 +82,16 @@
 	<br>
 	<br>
 	<br>
+	<audio id="yx1">
+		<source = src="c0NtR01Ier\static\click.ogg" type="audio/ogg">
+	</audio>
+	<audio id="yx2">
+		<source = src="c0NtR01Ier\static\sound.ogg" type="audio/ogg">
+	</audio>
 	<body onload="init()">
 		<div style="display: grid; place-items: center;background:rgba(0,0,0,0.2);" class="container">
 			<br>
+			<h1 style="color:orange">简洁的在线提问工具</h1>
 			<nobr>
 				<h1>
 					<span id="qwq"></span>
@@ -72,7 +99,7 @@
 			</nobr>
 			<h1 style="color:red">▲</h1>
 			<br>
-			<button type="button" class="btn btn-success" onclick="main()" id="bt">抽</button>
+			<button type="button" class="btn btn-info" onclick="main()" id="bt">抽</button>
 			<br>
 		</div>
 	</body>
