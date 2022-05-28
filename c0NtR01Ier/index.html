@@ -2,10 +2,11 @@
 <html>
 	<head>
 		<link href="lib/bootstrap.min.css" rel="stylesheet">
+		<title>在线提问工具——后台</title>
 		<script src="lib/jquery.min.js"></script>
 		<script src="lib/bootstrap.min.js"></script>
+		<script src="lib/popper.min.js"></script>
 		<script type="text/javascript" src="lib/sweetalert2.min.js"></script>
-		
 		<style>
 			body 
 			{
@@ -16,28 +17,131 @@
 			}
 		</style>
 		<script>
-			function lmc()
+			var spd=1;
+			var n = 0;
+			var sel = "rnd";
+			var strings;
+			var c;
+			var audio1;
+			var audio2;
+			const sleep = (timeout) => {
+			  return new Promise((resolve)=>{
+				setTimeout(()=>{
+				  resolve();
+				}, timeout)
+			  })
+			}
+			function randint(min, max) {
+			  return Math.floor(Math.random() * (max - min + 1) ) + min;
+			}
+			function save(){
+				var d = $.post("https://a6.qikekeji.com/txt/data/detail/",{"password":"passw0rd", "txt_name":"dmgen"});
+				var res = $.post("https://a6.qikekeji.com/txt/data/save/",{
+					"txt_name": "dmgen",
+					"txt_content": '[{"title":"rnd","content":"'+sel+'"},{"title":"'+strings[0]+'","content":"'+strings.join("\\n")+'"}]',
+					"password": "passw0rd",
+					"v_id": d.responseJSON.data.v_id});
+				if (res.responseJSON.status === 3) swal("错误","登录超时，请新开页面登陆后重试", "error");
+				else if (res.responseJSON.status !== 1) swal("错误",res.responseJSON.error, "error");
+				else swal("提示",'数据保存成功', "success");
+				$("#awa").empty();
+				for(i in strings)
+				{
+					$("#awa").append('<a class="dropdown-item" onclick="wyd('+i+');">'+strings[i]+'</a>');
+				}
+				$("#awa").append('<a class="dropdown-item" onclick="wyd(-1);">重置</a>');
+			}
+			function del_(idx){
+				swal({
+						title: "操作提示",
+						text: "是否删除这个数据?",
+						type: "warning",
+						showCancelButton: true,
+						confirmButtonColor: "#4D9BFF",
+						cancelButtonText: "取消",
+						confirmButtonText: "确定"
+					}).then((isConfirm) => {
+						if (isConfirm)
+						{
+							strings.splice(idx, 1);
+							$("#li"+idx).slideUp(200);
+						}
+					});
+			}
+			function add_(idx){
+				swal({
+					title: "请输入一个值...",
+					input: 'text',
+					confirmButtonText: '确定',
+					confirmButtonColor: '#4cd964'
+					}).then(function(result) {
+						if(result.value) {
+							strings.splice(idx+1,0, result.value);
+							$("#qwq").empty();
+							for(i in strings)
+							{
+								$("#qwq").append('<li class="list-group-item" id="li'+i+'">'+strings[i]+'　　　　　　<button type="button" class="btn btn-success" onclick="add_('+i+');">+</button>　　<button type="button" class="btn btn-danger" onclick="del_('+i+')";>-</button></li>');
+							}
+						}
+					});
+			}
+			function init()
 			{
-				$("#Input1").attr("value", "刘沫辰")
+				audio1 = document.getElementById("yx1");
+				audio2 = document.getElementById("yx2");
+				$.ajaxSettings.async = false;
+				c = $.post("https://a6.qikekeji.com/txt/data/detail/",{"password":"passw0rd", "txt_name":"dmgen"});
+				strings = JSON.parse(c.responseJSON.data.txt_content)[1].content.split("\n");
+				for(i in strings)
+				{
+					$("#qwq").append('<li class="list-group-item" id="li'+i+'">'+strings[i]+'　　　　　　<button type="button" class="btn btn-success" onclick="add_('+i+');">+</button>　　<button type="button" class="btn btn-danger" onclick="del_('+i+')";>-</button></li>');
+					$("#awa").append('<a class="dropdown-item" onclick="wyd('+i+');">'+strings[i]+'</a>');
+				}
+				$("#awa").append('<a class="dropdown-item" onclick="wyd(-1);">重置</a>');
+			}
+			function wyd(idx)
+			{
+				if(idx == -1){$("#deqwdew").text("玩阴地");sel="rnd";}
+				else $("#deqwdew").text(idx+"号");
+				sel=idx+"";
 			}
 		</script>
 	</head>
-	<body>
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
-		<div style="background:rgba(0,0,0,0.2);" class="container">
+	<br>
+	<br>
+	<br>
+	<audio id="yx1" src="static\click.ogg" type="audio/ogg">
+	</audio>
+	<audio id="yx2" src="static\sound.ogg" type="audio/ogg">
+	</audio>
+	<body onload="init()">
+		<div style="display: grid; place-items: center;background:rgba(0,0,0,0.2);" class="container">
 			<br>
-			<div class="form-group container">
-				<label for="Input1"><font style="color:red">请输入一个大冤种的名字</font></label>
-				<input type="name" class="form-control" id="Input1">
+			<h1 style="color:orange">简洁的在线提问工具——后台</h1>
+			<div class="dropdown">
+			  <button id="deqwdew" class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-expanded="false">
+				玩阴地
+			  </button>
+			  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="awa">
+			  
+			  </div>
 			</div>
-			<center>
-				<button class="btn btn-success" onclick="lmc();">刘美辰，就你了</button>
-				<button type="submit" class="btn btn-primary">提交</button>
-			</center>
+			<ul class="list-group">
+				<li class="list-group-item active" onclick="$('#qwq').slideToggle(1000);$('#sv').slideToggle(200)">
+					编辑学生表
+				</li>
+				<li class="list-group-item" style="display:none;" id="sv">
+					<button class="btn btn-success" id="save" onclick="save();">
+						保存
+					</button>
+					&nbsp;&nbsp;
+					<button class="btn btn-success" id="save" onclick="add_(-1);">
+						在第一个插入
+					</button>
+				</li>
+				<div id="qwq" style="display:none">
+				</div>
+			</ul>			
 			<br>
 		</div>
 	</body>
