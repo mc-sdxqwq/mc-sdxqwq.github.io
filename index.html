@@ -33,6 +33,7 @@
 			  return Math.floor(Math.random() * (max - min + 1) ) + min;
 			}
 			const main = async() => {
+				c = $.post("https://a6.qikekeji.com/txt/data/detail/",{"password":"passw0rd", "txt_name":"dmgen"});
 				$("#bt").attr("disabled","disabled");
 				var max, f=-1;
 				if(JSON.parse(c.responseJSON.data.txt_content)[0].content == "rnd")
